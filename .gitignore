@@ -1,0 +1,8 @@
+.env
+env
+
+_pycache_
+*/migrations/
+__pycache__/
+*.py[cod]
+_ini_.py
