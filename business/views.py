@@ -4,11 +4,15 @@ CommunicationStyleSerializer,ContentTypesSerializer,VisualStyleSerializer,Succes
 from business.models import (BusinessDetails,CommunicationPreferences,CommunicationStyle,ContentTypes,VisualStyle,SuccessMetrics,
 BusinessProfileQuestionnaire
 )
+
+from django.db import models
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-class BusinessDetailsListCreate(APIView):
+from rest_framework.permissions import IsAuthenticated
+class BusinessDetailsListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request,pk=None):
         if pk:
             business = get_object_or_404(BusinessDetails, pk=pk)
@@ -19,22 +23,26 @@ class BusinessDetailsListCreate(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        if BusinessDetails.objects.filter(user=request.user).exists():
+            return Response({"error": "You already have a business profile"}, status=status.HTTP_400_BAD_REQUEST)
+
+
         serializer = BusinessDetailsSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(BusinessDetails, pk=pk)
-        serializer = BusinessDetailsSerializer(instance, data=request.data)
+        serializer = BusinessDetailsSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BusinessProfileQuestionnaire(APIView):
+class BusinessProfileQuestionnaireView(APIView):
     def get(self, request,pk=None):
         if pk:
             questionnaire = get_object_or_404(BusinessProfileQuestionnaire, pk=pk)
@@ -51,9 +59,9 @@ class BusinessProfileQuestionnaire(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(BusinessProfileQuestionnaire,pk=pk)
-        serializer = BusinessProfileQuestionnaireSerializer(instance, data=request.data)
+        serializer = BusinessProfileQuestionnaireSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -61,7 +69,7 @@ class BusinessProfileQuestionnaire(APIView):
 
 
 
-class CommunicationPreferences(APIView):
+class CommunicationPreferencesView(APIView):
     def get(self, request, pk=None):
         if pk:
             preference = get_object_or_404(CommunicationPreferences, pk=pk)
@@ -78,9 +86,9 @@ class CommunicationPreferences(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(CommunicationPreferences,pk=pk)
-        serializer = CommunicationPreferencesSerializer(instance, data=request.data)
+        serializer = CommunicationPreferencesSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -88,7 +96,7 @@ class CommunicationPreferences(APIView):
 
 
 
-class CommunicationStyle(APIView):
+class CommunicationStyleView(APIView):
     def get(self, request,pk=None):
         if pk:
             style = get_object_or_404(CommunicationStyle, pk=pk)
@@ -105,9 +113,9 @@ class CommunicationStyle(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(CommunicationStyle,pk=pk)
-        serializer = CommunicationStyleSerializer(instance, data=request.data)
+        serializer = CommunicationStyleSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -115,7 +123,7 @@ class CommunicationStyle(APIView):
 
 
 
-class ContentTypes(APIView):
+class ContentTypesView(APIView):
     def get(self, request,pk=None):
         if pk:
             types = get_object_or_404(ContentTypes, pk=pk)
@@ -132,9 +140,9 @@ class ContentTypes(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(ContentTypes,pk=pk)
-        serializer = ContentTypesSerializer(instance, data=request.data)
+        serializer = ContentTypesSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -142,7 +150,7 @@ class ContentTypes(APIView):
 
 
 
-class VisualStyle(APIView):
+class VisualStyleView(APIView):
     def get(self, request,pk=None):
         if pk:
             style = get_object_or_404(VisualStyle, pk=pk)
@@ -159,10 +167,10 @@ class VisualStyle(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(VisualStyle,pk=pk)
 
-        serializer = VisualStyleSerializer(instance, data=request.data)
+        serializer = VisualStyleSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -170,7 +178,7 @@ class VisualStyle(APIView):
 
 
 
-class SuccessMetrics(APIView):
+class SuccessMetricsView(APIView):
     def get(self, request,pk=None):
         if pk:
             metrics = get_object_or_404(SuccessMetrics, pk=pk)
@@ -186,9 +194,9 @@ class SuccessMetrics(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def put(self, request,pk):
+    def put(self, request,pk=None):
         instance = get_object_or_404(SuccessMetrics,pk=pk)
-        serializer = SuccessMetricsSerializer(instance, data=request.data)
+        serializer = SuccessMetricsSerializer(instance, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
