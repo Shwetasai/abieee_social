@@ -16,7 +16,7 @@ class User(AbstractUser):
         if len(phone_number) != 10 or not re.match(r'^\d{10}$', phone_number):
             raise ValidationError('Phone number must be exactly 10 digits long')
         return phone_number
-    phone_number = models.CharField(max_length=15, unique=True,validators=[validate_phone])
+    phone_number = models.CharField(max_length=15, blank=True,null=True,validators=[validate_phone])
     
     first_name = models.CharField(max_length=30, blank=False)
     email=models.EmailField(_("email address"), unique=True)
@@ -28,4 +28,4 @@ class User(AbstractUser):
 
     
     def __str__(self):
-        return self.username
+        return self.email

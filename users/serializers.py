@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
@@ -7,6 +7,7 @@ from django.utils.encoding import force_bytes,force_str
 from django.core.mail import send_mail
 from django.conf import settings
 import re
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
@@ -34,7 +35,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if not re.search(r'[\W_]', password):
             raise serializers.ValidationError({"password": "Password must contain at least one special character (@$!%*#?&)."})
 
-    
         return attrs
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -63,4 +63,3 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             fail_silently=False,
         )
         return {"message": "Password reset link has been sent to your email."}
-    

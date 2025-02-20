@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserRegistrationSerializer
-from .models import User
+from users.serializers import UserRegistrationSerializer
+from users.models import User
 from rest_framework.permissions import AllowAny  
 import base64
 from django.core.mail import send_mail
@@ -15,6 +15,7 @@ from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
 from django.utils.encoding import force_bytes,force_str
 from rest_framework import serializers
 from jwt.exceptions import ExpiredSignatureError
+from rest_framework.authentication import SessionAuthentication
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -126,7 +127,7 @@ class LoginView(APIView):
             return Response({"message": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.filter(email=email).first()
             if not user.is_email_verified:
                 return Response({"message": "Email is not verified.please check your Email"})
             if user.check_password(password):
@@ -177,3 +178,24 @@ class ResetPasswordView(APIView):
             return Response({"message": "Password has been updated successfully."}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class SuccessfullLogin(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, format=None):
+        user = request.user
+        
+        if user.is_authenticated:
+            if not user.username:
+                user.username = user.email
+                user.save()
+            return Response({
+                    "message": "Login successful",
+                    "username": user.username,
+                    "email": user.email,
+                }, status=status.HTTP_200_OK)
+            
+        return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello, Django!")
