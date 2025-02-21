@@ -1,8 +1,7 @@
 from business.models import BusinessDetails
 from rest_framework import serializers
 from .models import (
-    BusinessDetails, BusinessProfileQuestionnaire, CommunicationPreferences,
-    CommunicationStyle, ContentTypes, VisualStyle, SuccessMetrics
+    BusinessDetails, BusinessProfileQuestionnaire
 )
 
 class BusinessDetailsSerializer(serializers.ModelSerializer):
@@ -18,7 +17,7 @@ class BusinessProfileQuestionnaireSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CommunicationPreferencesSerializer(serializers.ModelSerializer):
+"""class CommunicationPreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunicationPreferences
         fields = '__all__'
@@ -46,3 +45,4 @@ class SuccessMetricsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SuccessMetrics
         fields = '__all__'
+"""
