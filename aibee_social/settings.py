@@ -58,6 +58,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
 }
 
 MIDDLEWARE = [
@@ -99,7 +101,7 @@ AUTHENTICATION_BACKENDS = [
     
     
 ]
-SITE_ID = 5
+#SITE_ID = 5
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
