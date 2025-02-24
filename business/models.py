@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db import models
 from django.conf import settings
 class BusinessDetails(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="business_profile")
@@ -44,7 +43,7 @@ class BusinessDetails(models.Model):
 
 class BusinessProfileQuestionnaire(models.Model):
     business = models.OneToOneField(BusinessDetails, on_delete=models.CASCADE, related_name="questionnaire")
-    core_business_values = models.TextField(max_length=500, blank=False, null=False)
+    core_business_values = models.TextField(blank=False, null=False)
     unique_selling_proposition = models.TextField(max_length=500, blank=False, null=False)
 
     BUSINESS_VOICE_CHOICES = [('professional', 'Professional'), ('friendly', 'Friendly'), ('formal', 'Formal'), ('casual', 'Casual'), ('innovative', 'Innovative'), ('other', 'Other')]
@@ -85,8 +84,10 @@ class BusinessProfileQuestionnaire(models.Model):
     preferred_visual_style = models.CharField(max_length=50, choices=VISUAL_STYLE_CHOICES, blank=False, null=False)
 
     IMAGE_TYPE_CHOICES = [('product_photos', 'Product Photos'), ('lifestyle_photos', 'Lifestyle Photos'), ('illustrations', 'Illustrations'), ('infographics', 'Infographics')]
-    image_type_preferences = models.CharField(max_length=255, choices=IMAGE_TYPE_CHOICES, blank=False, null=False)
+    image_type_preferences = models.TextField(max_length=255, choices=IMAGE_TYPE_CHOICES, blank=False, null=False)
     additional_design_notes = models.TextField(blank=True, null=True)
+
+
     successful_post_examples = models.TextField(blank=False, null=False)
     inspiring_brands = models.TextField(blank=False, null=False)
     most_successful_post = models.TextField(blank=False, null=False)
@@ -99,4 +100,4 @@ class BusinessProfileQuestionnaire(models.Model):
     additional_guidelines = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.business_name}"
+        return f"{self.business.business_name}"
