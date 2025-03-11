@@ -42,10 +42,12 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'business',
+    'payments',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    
     
 ]
 
@@ -167,11 +169,14 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 RESET_PASSWORD_URL = config('RESET_PASSWORD_URL')
 JWT_ALGORITHM = config('JWT_ALGORITHM')
 
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('ACCESS_TOKEN_LIFETIME_MINUTES', cast=int)),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=config('REFRESH_TOKEN_LIFETIME_DAYS', cast=int)),
 }
-
+DEBUG = True
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -199,3 +204,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"  # Ensure this is properly set
 ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
