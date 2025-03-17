@@ -6,6 +6,5 @@ path('business_details/<int:pk>/', BusinessDetailsView.as_view(), name='business
 path('business-profile-questionnaire/', BusinessProfileQuestionnaireView.as_view(), name='business-profile-questionnaire'),
 path('business-profile-questionnaire/<int:pk>/', BusinessProfileQuestionnaireView.as_view(), name='business_profile_questionnaire_detail'),
 
-
 ]
 

@@ -47,8 +47,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    
-    
 ]
 
 
@@ -103,7 +101,7 @@ AUTHENTICATION_BACKENDS = [
     
     
 ]
-#SITE_ID = 5
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -158,7 +156,6 @@ DATABASES = {
         'PORT': config('DB_PORT', cast=int),
     }
 }
-print ('DB_NAME', config('DB_NAME'))
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
@@ -171,6 +168,9 @@ JWT_ALGORITHM = config('JWT_ALGORITHM')
 
 STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+
+MONDAY_API_URL = config('MONDAY_API_URL', default='https://api.monday.com/v2')
+MONDAY_API_KEY = config('MONDAY_API_KEY')
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('ACCESS_TOKEN_LIFETIME_MINUTES', cast=int)),
@@ -197,12 +197,11 @@ SOCIALACCOUNT_PROVIDERS = {
 LOGIN_URL = 'login'
 LOGOUT_URL= 'logout'
 LOGIN_REDIRECT_URL = '/successfull/'
-#LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGIN_METHOD = {'email'}
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
-ACCOUNT_SIGNUP_REDIRECT_URL = "/"  # Ensure this is properly set
+ACCOUNT_SIGNUP_REDIRECT_URL = "/" 
 ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 
 MEDIA_URL = "/media/"
