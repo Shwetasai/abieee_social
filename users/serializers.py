@@ -11,29 +11,36 @@ import re
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
-    email = serializers.EmailField(required=False)
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone_number', 'password','confirm_password']
         
-    def validate_password(self, attrs):
-        password = self.initial_data.get('password')
-        confirm_password = self.initial_data.get('confirm_password')
-        errors={}
-        if password != confirm_password:
-            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+    def validate(self, attrs):
+        password = attrs.get('password')
+        confirm_password = attrs.get('confirm_password')
+        errors = {}
 
-        if len(password) < 8:
-            raise serializers.ValidationError({"password": "Password must be at least 8 characters long."})
-        if not re.search(r'\d', password):
-            raise serializers.ValidationError({"password": "Password must contain at least one digit."})
-        if not re.search(r'[A-Z]', password):
-            raise serializers.ValidationError({"password": "Password must contain at least one uppercase letter."})
-        if not re.search(r'[a-z]', password):
-            raise serializers.ValidationError({"password": "Password must contain at least one lowercase letter."})
-        if not re.search(r'[\W_]', password):
-            raise serializers.ValidationError({"password": "Password must contain at least one special character (@$!%*#?&)."})
+        if password != confirm_password:
+            errors['confirm_password'] = "Passwords do not match."
+
+        if password:
+            password_errors = []
+            if len(password) < 8:
+                password_errors.append("Password must be at least 8 characters long.") 
+            if not re.search(r'\d', password):
+                password_errors.append("Password must contain at least one digit.")
+            if not re.search(r'[A-Z]', password):
+                password_errors.append("Password must contain at least one uppercase letter.") 
+            if not re.search(r'[a-z]', password):
+                password_errors.append("Password must contain at least one lowercase letter.") 
+            if not re.search(r'[\W_]', password):
+                password_errors.append("Password must contain at least one special character (@$!%*#?&).")
+            if password_errors:
+                errors['password'] = password_errors
+
+        if errors:
+            raise serializers.ValidationError(errors)
 
         return attrs
     def create(self, validated_data):
@@ -53,7 +60,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-        reset_link = f"{settings.RESET_PASSWORD_URL}{uid}/{token}/"
+        reset_link = f"{settings.RESET_PASSWORD_URL}api/users/reset-password/{uid}/{token}/"
 
         send_mail(
             "Password Reset Request",
@@ -63,3 +70,5 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             fail_silently=False,
         )
         return {"message": "Password reset link has been sent to your email."}
+
+

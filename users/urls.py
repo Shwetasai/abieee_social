@@ -11,6 +11,5 @@ urlpatterns =[
     path('reset-password/<str:uidb64>/<str:token>/', ResetPasswordView.as_view(), name='reset-password'),
     path('successfull/', SuccessfullLogin.as_view(), name='google_login'),
     path('', views.home, name='home'),
-    
 
 ]

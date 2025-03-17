@@ -6,3 +6,5 @@ _pycache_
 __pycache__/
 *.py[cod]
 _ini_.py
+server.log/
+media/
