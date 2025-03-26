@@ -43,7 +43,10 @@ INSTALLED_APPS = [
     'users',
     'business',
     'payments',
+    'prices',
     'allauth',
+    'preferences',
+    'planner',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
@@ -165,13 +168,13 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 RESET_PASSWORD_URL = config('RESET_PASSWORD_URL')
 JWT_ALGORITHM = config('JWT_ALGORITHM')
-
+REGISTER_BOARD_ID=config('REGISTER_BOARD_ID')
 STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
 MONDAY_API_URL = config('MONDAY_API_URL', default='https://api.monday.com/v2')
 MONDAY_API_KEY = config('MONDAY_API_KEY')
-
+DETAILS_BOARD_ID= int(config('DETAILS_BOARD_ID'))
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('ACCESS_TOKEN_LIFETIME_MINUTES', cast=int)),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=config('REFRESH_TOKEN_LIFETIME_DAYS', cast=int)),
@@ -206,3 +209,4 @@ ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+

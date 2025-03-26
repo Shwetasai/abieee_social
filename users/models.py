@@ -28,7 +28,3 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["phone_number"]
     obj=UserManager()
     
-
-    
-    # def __str__(self):
-    #     return self.email

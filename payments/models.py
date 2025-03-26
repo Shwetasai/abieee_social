@@ -1,12 +1,9 @@
 from django.db import models
 import uuid
+from prices.models import Package
+from django.conf import settings
 
 class CardInformation(models.Model):
-    card_number = models.CharField(max_length=16)
-    expiry_month = models.IntegerField()
-    expiry_year = models.IntegerField()
-
-    cvc = models.CharField(max_length=4)
     amount = models.IntegerField()
     currency = models.CharField(max_length=3, default='usd')
 
@@ -16,6 +13,7 @@ class CardInformation(models.Model):
 class Payment(models.Model):
     payment_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     card_info = models.ForeignKey(CardInformation, on_delete=models.CASCADE)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name="payments")
     payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
     amount = models.IntegerField()
     currency = models.CharField(max_length=3)

@@ -16,7 +16,7 @@ from django.utils.encoding import force_bytes,force_str
 from rest_framework import serializers
 from jwt.exceptions import ExpiredSignatureError
 from rest_framework.authentication import SessionAuthentication
-from users.utils.monday_service import create_item
+from users.utils.monday_service import register_monday_item,update_verification_status
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -43,29 +43,22 @@ class UserRegistrationView(APIView):
 
         user = serializer.save()
         self.send_verification_email(request, user, "Welcome to AIBee-social!")
-        board_id = request.data.get("board_id")
+        
         name = request.data.get("name", f"{user.first_name} {user.last_name}")
         first_name = user.first_name
         last_name = user.last_name
         phone = request.data.get("phone_number")
+        email =request.data.get("email")
 
-        if not all([board_id, name, user.email, phone]):
+        if not all([ name, user.email, phone]):
             return Response({"error": "Missing required fields for Monday.com"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            board_id = int(board_id)
-            monday_response = create_item(board_id, name, first_name, last_name, user.email, phone)
-
-            return Response({
-                "message": "Verification email sent successfully. Please check your inbox to complete registration.",
-                "monday_response": monday_response
-            }, status=status.HTTP_201_CREATED)
-        except ValueError:
-            return Response({"error": "Invalid board_id, must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+            monday_response = register_monday_item( f"{user.first_name} {user.last_name}", user.first_name, user.last_name, user.email, phone, user.is_email_verified)
+            return Response({"message": "Verification email sent. Check your inbox.", "monday_response": monday_response}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": "Failed to send data to Monday.com", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-       
+        
     def get(self, request, *args, **kwargs):
         token = request.query_params.get('token')
         if not token:
@@ -95,6 +88,7 @@ class UserRegistrationView(APIView):
                 )
             user.is_email_verified = True
             user.save()
+            update_verification_status(decoded_email)
             return Response(
                 {"message": "Your email has been verified successfully. Registration is now complete."},
                 status=status.HTTP_200_OK
@@ -109,6 +103,7 @@ class UserRegistrationView(APIView):
         encoded_email = base64.urlsafe_b64encode(user.email.encode()).decode()
         payload = {
             "email": encoded_email,
+            
             "exp": datetime.utcnow() + timedelta(minutes=1),
         }
         verification_token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
@@ -191,30 +186,3 @@ from django.http import HttpResponse
 def home(request):
     return HttpResponse("Hello, Django!")
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from users.utils.monday_service import create_item
-
-'''lass CreateMondayContactView(APIView):
-    def post(self, request):
-        board_id = request.data.get("board_id")
-        name = request.data.get("name")
-        first_name = request.data.get("first_name")
-        last_name = request.data.get("last_name")
-        email = request.data.get("email")
-        phone = request.data.get("phone")
-
-        if not all([board_id, name, email, phone]):
-            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            board_id = int(board_id)
-
-            data = create_item(board_id, name, first_name, last_name, email, phone)
-            return Response(data, status=status.HTTP_201_CREATED)
-        except ValueError:
-            return Response({"error": "Invalid board_id, must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-'''

@@ -26,6 +26,9 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('', include('users.urls')),
     path('api/payments/', include('payments.urls')),
+    path('api/prices/', include('prices.urls')),
+    path('api/preferences/',include('preferences.urls')),
+    path('api/planner/',include('planner.urls')),
 
     
 

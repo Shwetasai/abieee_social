@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from .models import BusinessDetails, BusinessProfileQuestionnaire
 from .serializers import BusinessDetailsSerializer, BusinessProfileQuestionnaireSerializer
-from business.utils.monday_service import create_item
+from business.utils.monday_service import business_details_board
 class BusinessDetailsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -24,19 +24,13 @@ class BusinessDetailsView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         business_instance = serializer.save(user=request.user)
 
-        board_id = request.data.get("board_id")
         business_name = request.data.get("business_name")
         field_of_activity = request.data.get("field_of_activity")
         business_description = request.data.get("business_description")
         target_audience= request.data.get("target_audience")
 
-
-        if not all([board_id, ]):
-            return Response({"error": "Missing required fields for Monday.com"}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            board_id = int(board_id)
-            monday_response = create_item(board_id,business_name,field_of_activity, business_description,target_audience)
+            monday_response = business_details_board(business_name,field_of_activity, business_description,target_audience,request.user.email)
 
             return Response({
                 "message": "Business profile created successfully",
@@ -50,14 +44,35 @@ class BusinessDetailsView(APIView):
             return Response({"error": "Failed to send data to Monday.com", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    def put(self, request):
+    def put(self, request, pk=None):
+        if pk is None:
+            return Response({"error": "Business ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         business = get_object_or_404(BusinessDetails, user=request.user)
         serializer = BusinessDetailsSerializer(business, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        if serializer.is_valid():
+            business_instance = serializer.save()
+            business_name = serializer.validated_data.get("business_name", business_instance.business_name)
+            field_of_activity = serializer.validated_data.get("field_of_activity", business_instance.field_of_activity)
+            business_description = serializer.validated_data.get("business_description", business_instance.business_description)
+            target_audience = serializer.validated_data.get("target_audience", business_instance.target_audience)
+
+            try:
+                monday_response = business_details_board(business_name, field_of_activity, business_description, target_audience, request.user.email)
+
+                return Response({
+                    "message": "Business profile updated successfully",
+                    "business_data": serializer.data,
+                    "monday_response": monday_response
+                }, status=status.HTTP_200_OK)
+
+            except ValueError:
+                return Response({"error": "Invalid board_id, must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": "Failed to update data on Monday.com", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class BusinessProfileQuestionnaireView(APIView):
     permission_classes = [IsAuthenticated]
 
