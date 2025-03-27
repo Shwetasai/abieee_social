@@ -12,4 +12,5 @@ class PendingPostSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['content', 'media', 'post_type', 'platform', 'scheduling_date', 'content_status', 'user', 'post_id', 'media_status']
+

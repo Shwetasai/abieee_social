@@ -32,43 +32,27 @@ class PostManagementView(APIView):
             return Response({'error': 'Invalid or missing action (must be "approve" or "cancel")'}, status=400)
 
         pending_post = get_object_or_404(PendingPost, post_id=post_id, user=request.user)
+        
         try:
-            scheduling_datetime = timezone.make_aware(
-                timezone.datetime.combine(pending_post.publication_date, timezone.datetime.min.time())
-            )
-            if action == 'approve':
-                post = Post.objects.create(
-                    user=request.user,
-                    post_id=pending_post.post_id,
-                    platform=pending_post.platform,
-                    post_type=pending_post.post_type,
-                    scheduling_date=scheduling_datetime,  
-                    status='approved'
-                )
-                pending_post.delete()
-                return Response({"message": "Post approved and moved to Post table", "status": post.status}, status=201)
-            elif action == 'cancel':  
-                post = Post.objects.create(
-                    user=request.user,
-                    post_id=pending_post.post_id,
-                    platform=pending_post.platform,
-                    post_type=pending_post.post_type,
-                    scheduling_date=scheduling_datetime,  
-                    status='canceled'
-                )
-                pending_post.delete()
-                return Response({"message": "Post canceled and moved to Post table", "status": post.status}, status=200)
+            pending_post.content_status = 'approved' if action == 'approve' else 'canceled'
+            pending_post.media_status = 'approved' if action == 'approve' else 'canceled'
+            pending_post.save(update_fields=['content_status', 'media_status'])
+
+            return Response({
+                "message": f"Post {action}d successfully",
+                "content_status": pending_post.content_status,
+                "media_status": pending_post.media_status
+            }, status=200)
 
         except Exception as e:
             return Response({'error': f"An error occurred: {str(e)}"}, status=500)
 
     def get(self, request, *args, **kwargs):
-        status_filter = request.query_params.get('status')
-        if status_filter and status_filter not in ['approved', 'canceled']:
-            return Response({'error': 'Invalid status parameter (must be "approved" or "canceled")'}, status=400)
+        status_filter = request.GET.get('status')
         if status_filter:
-            posts = Post.objects.filter(user=request.user, status=status_filter)
+            posts = PendingPost.objects.filter(content_status=status_filter)
         else:
-            posts = Post.objects.filter(user=request.user)
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data, status=200)
+            posts = PendingPost.objects.all()
+
+        serializer = PendingPostSerializer(posts, many=True)
+        return Response(serializer.data)
