@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/prices/', include('prices.urls')),
     path('api/preferences/',include('preferences.urls')),
     path('api/planner/',include('planner.urls')),
+    path('api/media_app/', include('media_app.urls')),
 
     
 

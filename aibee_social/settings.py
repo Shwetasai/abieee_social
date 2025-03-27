@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'allauth',
     'preferences',
     'planner',
+    'media_app',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
