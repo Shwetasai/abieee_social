@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.conf import settings
+#from datetime import date, timedelta
 class Package(models.Model):
     class PackageType(models.TextChoices):
         PREMIUM = "Premium", "Premium"
@@ -11,7 +12,7 @@ class Package(models.Model):
         max_length=10, choices=PackageType.choices, unique=True
     )
     price = models.IntegerField()
-    platforms = models.CharField()
+    platforms = models.CharField(max_length=255)
     posts_per_month = models.IntegerField()
     credits = models.IntegerField()
     content_text = models.BooleanField(default=True)
@@ -22,3 +23,4 @@ class Package(models.Model):
 
     def __str__(self):
         return self.package_type
+    

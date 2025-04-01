@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 import uuid
-
+ 
 PLATFORM_CHOICES = [
     ('linkedin', 'LinkedIn'),
     ('facebook', 'Facebook'),
@@ -50,16 +50,10 @@ class PendingPost(models.Model):
         if self.post_type not in valid_post_types:
             raise ValidationError(f"Invalid post type: {self.post_type}. Choose from {', '.join(valid_post_types)}.")
 
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return f"{self.user} - {self.platform} ({self.post_type})"
-
-
-class Post(models.Model):
     
+class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     content = models.TextField()
@@ -68,8 +62,6 @@ class Post(models.Model):
     platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES)
     scheduling_date = models.DateTimeField()
     
-
-
     def clean(self):
         valid_platforms = dict(PLATFORM_CHOICES).keys()
         if self.platform not in valid_platforms:

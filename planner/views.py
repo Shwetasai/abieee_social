@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from planner.models import PendingPost, Post
 from .serializers import PendingPostSerializer, PostSerializer
-from django.utils import timezone
-from datetime import datetime
+from prices.models import Package
+from payments.models import UserPackage
 
 class PendingPostView(APIView):
     permission_classes = [IsAuthenticated]
@@ -20,6 +20,15 @@ class PendingPostView(APIView):
         serializer = PendingPostSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             post = serializer.save(user=request.user)
+            user_package = UserPackage.objects.filter(user=request.user).first()
+            if user_package and (user_package.posts_per_month == 0 or user_package.credits == 0):
+                recommended_package = Package.objects.filter(price__gt=user_package.package.price).order_by('price').first()
+                if recommended_package:
+                    return Response({
+                        "message": "Post created successfully, but you are out of credits or posts. Upgrade recommended!",
+                        "post_id": post.post_id,
+                        "recommended_package": recommended_package.package_type
+                    }, status=status.HTTP_201_CREATED)
             return Response({"message": "Pending post added successfully!", "post_id": post.post_id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

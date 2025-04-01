@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated 
 from preferences.serializers import SchedulingPreferencesSerializer, PostDistributionSerializer
-
 class SchedulingPreferencesView(APIView):
     permission_classes = [IsAuthenticated]
 

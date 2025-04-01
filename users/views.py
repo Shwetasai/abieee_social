@@ -88,7 +88,6 @@ class UserRegistrationView(APIView):
                 )
             user.is_email_verified = True
             user.save()
-            update_verification_status(decoded_email)
             return Response(
                 {"message": "Your email has been verified successfully. Registration is now complete."},
                 status=status.HTTP_200_OK

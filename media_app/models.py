@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class MediaFile(models.Model):
     MEDIA_TYPES = [
@@ -6,7 +7,7 @@ class MediaFile(models.Model):
         ('video', 'Video'),
         ('carousel', 'Carousel'),
     ]
-
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     file = models.FileField(upload_to='uploads/%Y/%m/')
     media_type = models.CharField(max_length=20, choices=MEDIA_TYPES)
     uploaded_at = models.DateTimeField(auto_now_add=True)
