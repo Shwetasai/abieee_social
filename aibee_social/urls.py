@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/preferences/',include('preferences.urls')),
     path('api/planner/',include('planner.urls')),
     path('api/media_app/', include('media_app.urls')),
+    #path('api/instapost/',include ('instapost.urls')),
 
     
 

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import PendingPost, Post
 from payments.models import UserPackage
-#from datetime import date
 from django.utils import timezone
 
 class PendingPostSerializer(serializers.ModelSerializer):

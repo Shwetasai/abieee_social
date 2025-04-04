@@ -7,6 +7,12 @@ from planner.models import PendingPost, Post
 from .serializers import PendingPostSerializer, PostSerializer
 from prices.models import Package
 from payments.models import UserPackage
+from instagrapi import Client
+import os
+from django.conf import settings
+import datetime
+INSTAGRAM_USERNAME = settings.INSTAGRAM_USERNAME
+INSTAGRAM_PASSWORD = settings.INSTAGRAM_PASSWORD
 
 class PendingPostView(APIView):
     permission_classes = [IsAuthenticated]
@@ -46,6 +52,37 @@ class PostManagementView(APIView):
             pending_post.content_status = 'approved' if action == 'approve' else 'canceled'
             pending_post.media_status = 'approved' if action == 'approve' else 'canceled'
             pending_post.save(update_fields=['content_status', 'media_status'])
+            if action == 'approve':
+                post = Post.objects.create(
+                    user=request.user,
+                    post_id=pending_post.post_id,
+                    content="Approved post", 
+                    media=getattr(pending_post, 'media', None), 
+                    post_type=pending_post.post_type,
+                    platform=pending_post.platform,
+                    scheduling_date=datetime.datetime.combine(
+                        pending_post.publication_date,
+                        pending_post.publication_time
+                    )
+                )
+
+                if pending_post.platform == 'instagram':
+                    try:
+                        cl = Client()
+                        cl.login(settings.INSTAGRAM_USERNAME, settings.INSTAGRAM_PASSWORD)
+
+                        image_path = os.path.join(settings.MEDIA_ROOT, str(post.media))
+                        caption = post.content or "Shared via our platform!"
+
+                        if os.path.exists(image_path):
+                            media = cl.photo_upload(image_path, caption)
+                            print("Uploaded to Instagram:", media.dict())
+                        else:
+                            return Response({"error": "Media file not found for Instagram post"}, status=404)
+
+                    except Exception as e:
+                        return Response({"error": f"Instagram upload failed: {str(e)}"}, status=500)
+
 
             return Response({
                 "message": f"Post {action}d successfully",
@@ -55,6 +92,7 @@ class PostManagementView(APIView):
 
         except Exception as e:
             return Response({'error': f"An error occurred: {str(e)}"}, status=500)
+        
 
     def get(self, request, *args, **kwargs):
         status_filter = request.GET.get('status')

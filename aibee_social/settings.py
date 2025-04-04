@@ -211,3 +211,5 @@ ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+INSTAGRAM_USERNAME = config("INSTAGRAM_USERNAME")
+INSTAGRAM_PASSWORD = config("INSTAGRAM_PASSWORD")

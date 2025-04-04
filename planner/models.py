@@ -38,6 +38,8 @@ class PendingPost(models.Model):
     post_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     content_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     media_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    media = models.ImageField(upload_to="pending_posts/", blank=True, null=True)
+
     
 
     def clean(self):
