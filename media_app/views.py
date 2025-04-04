@@ -6,8 +6,8 @@ from rest_framework import status
 from .serializers import MediaFileSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import MediaFile
-import requests
-from django.conf import settings
+#import requests
+
 
 class UploadMediaView(APIView):
     permission_classes = [IsAuthenticated]
@@ -41,44 +41,3 @@ class UploadMediaView(APIView):
         serializer = MediaFileSerializer(media_files, many=True, context={'request': request})
         return Response(serializer.data)
     
-    '''def post_to_instagram(self, user, media_file):
-
-        try:
-            
-            access_token = settings.INSTAGRAM_ACCESS_TOKEN
-            instagram_account_id = settings.INSTAGRAM_ACCOUNT_ID
-
-            if not access_token or not instagram_account_id:
-                return {"error": "Instagram account not linked"}
-
-            image_url = media_file.file.url
-            caption = "Posted via Django!"
-
-            upload_url = f"https://graph.facebook.com/v19.0/{instagram_account_id}/media"
-            payload = {
-                "image_url": image_url,
-                "caption": caption,
-                "access_token": access_token
-            }
-
-            upload_response = requests.post(upload_url, data=payload)
-            upload_result = upload_response.json()
-
-            if "id" in upload_result:
-                creation_id = upload_result["id"]
-
-                publish_url = f"https://graph.facebook.com/v19.0/{instagram_account_id}/media_publish"
-                publish_payload = {
-                    "creation_id": creation_id,
-                    "access_token": access_token
-                }
-                publish_response = requests.post(publish_url, data=publish_payload)
-
-                return publish_response.json()
-
-            return upload_result
-
-        except Exception as e:
-            return {"error": str(e)}
-
-'''

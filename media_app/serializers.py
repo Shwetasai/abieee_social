@@ -21,15 +21,3 @@ class MediaFileSerializer(serializers.ModelSerializer):
                 representation['file'] = settings.MEDIA_URL + instance.file.name 
 
         return representation
-
-'''class SocialConnectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SocialConnect
-        fields = '__all__'
-        read_only_fields = ['user']'''
-
-'''class ScheduledPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ScheduledPost
-        fields = '__all__'
-        read_only_fields = ['user', 'posted']'''
