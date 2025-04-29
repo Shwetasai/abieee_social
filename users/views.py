@@ -126,21 +126,22 @@ class LoginView(APIView):
         if not email or not password:
             return Response({"message": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            user = User.objects.filter(email=email).first()
-            if not user.is_email_verified:
-                return Response({"message": "Email is not verified.please check your Email"})
-            if user.check_password(password):
-                refresh = RefreshToken.for_user(user)
-                return Response({
+        
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            return Response({"message": "User with this email not found. Please register first."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.is_email_verified:
+            return Response({"message": "Email is not verified.please check your Email"})
+        if user.check_password(password):
+            refresh = RefreshToken.for_user(user)
+            return Response({
                     'message': 'Login successful.',
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                 }, status=status.HTTP_200_OK)
-            return Response({"message": "Incorrect email or password.Please check your email or password and try again."}, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            return Response({"message": "user with this email not found. Please register first."}, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response({"message": "Incorrect email or password.Please check your email or password and try again."}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
@@ -169,15 +170,15 @@ class ResetPasswordView(APIView):
         if not default_token_generator.check_token(user, token):
             return Response({"message": "Reset link is invalid or expired."}, status=status.HTTP_400_BAD_REQUEST)
 
+        serializer = UserRegistrationSerializer(data=request.data, partial=True)
 
-        serializer = UserRegistrationSerializer(data=request.data,partial=True)
-        
         if serializer.is_valid():
             user.set_password(serializer.validated_data["password"])
             user.save()
             return Response({"message": "Password has been updated successfully."}, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print("Serializer Errors:", serializer.errors)
+            return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST) 
 class SuccessfullLogin(APIView):
     permission_classes = [AllowAny]
     def get(self, request, format=None):
@@ -199,3 +200,5 @@ from django.http import HttpResponse
 
 def home(request):
     return HttpResponse("Hello, Django!")
+
+
